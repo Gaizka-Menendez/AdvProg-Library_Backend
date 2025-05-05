@@ -1,0 +1,78 @@
+Cada una de las interacciones que se lleve a cabo por ejemplo con una página web generalmente implican una solicitud que
+se realiza a Backend. A continuación vamos a analizar una de las rutas a las que se solicitan datos/información:
+
+https://es.wikipedia.org/static/images/mobile/copyright/wikipedia-tagline-es.svg
+
+es.wikipedia.org --> Host
+static/images/mobile/copyright/wikipedia-tagline-es.svg --> Path
+
+La URL completa es el endpoint al que realizas la solicitud, Host + Path. La propia URL en sí ya nos aporta información
+como que es lo que se está solicitando. En este caso las imágenes con copyright de wikipedia-tagline-es.svg. En la URL 
+pueden venir incluidos o no parámetros de entrada. En este caso el parámetro de entrada sería "wikipedia-tagline-es.svg".
+Además se pueden incluir también algunos query params (Ej: ?max_length=1000) para filtrar o añadir modificaciones a la 
+información pedida.
+
+** Verbos HTTP ** 
+
+POST -> Guardar, añadir un nuevo recurso
+/users --> en este caso se necesita un método para pasarle la información a añadir (Payload)
+{
+    "username": "alejandroj",
+    "name": "Alejandro",
+    ...
+}
+
+GET -> Obtener un recurso, obtener información
+/users
+/users/546
+/users?active=True&min_purchase=3
+
+
+
+PATCH -> Actualizar parcialmente un recurso
+/users/123
+{
+    "username": "alejandroj",
+    "name": "Alejandro",
+    ...
+} -> Payload
+
+
+PUT -> Actualizar completamente un recurso
+/users/123
+
+
+DELETE
+/users/123
+/users --> en algunos casos esta nomenclatura implica borrar todos los usuarios
+
+
+
+** Tipos de Respuesta **
+
+Se agrupan en cinco clases de respuesta según el primer dígito de código de estado.
+
+1XX - Respuestas informativas (indican que la solicitud fue recibida y que el proceso continua)
+
+2XX - Respuestas satisfactorias (indican que la solicitud fue recibida, entendida y procesada correctamente)
+
+    200 OK Todo bien, Solicitud exitosa
+    201 Created: recurso creado con éxito
+    202 Accepted: Solicitud aceptada, pero aun no procesada (procesos pesados, procesos asíncronos)
+
+3XX - Redirecciones (indican que se requiere una acción adicional para completar la solicitud)
+
+    301 Moved permanently: el recurso se movió de forma permanente
+
+4XX - Errores del cliente (se produjeron errores porque la solicitud tiene un problema)
+
+    400 Bad Request: solicitud inválida
+    401 Unauthorized: falta autenticación
+    403 Forbidden: acceso prohibido al recurso
+    404 Not Found: recurso no encontrado
+    405 method Not Allowed: método HTTP no permitido para este recurso
+
+5XX - Errores del servidor (el servidor falló al cumplir una solicitud aparentemente válida)
+
+    500 Internal Server Error: Error genérico del servidor
+    503 Service Unavailable: el servidor no está disponible temporalmente
