@@ -76,3 +76,13 @@ Se agrupan en cinco clases de respuesta según el primer dígito de código de e
 
     500 Internal Server Error: Error genérico del servidor
     503 Service Unavailable: el servidor no está disponible temporalmente
+
+
+Arquitecturas REST (Transferencia de Estado Representacional)
+
+En esta arquitectura todo son recursos donde cada uno de estos dispone de una dirección única. El servidor no guarda 
+información de ninguna de las peticiones, cada una de las request deben ser autosuficientes de forma que el servidor sepa
+que se debe responder. La información (payload) que se envía o recibe será en forma de Jason.
+
+Otros ejemplos de arquitecturas son SOAP (es la más antigua y está basada en XML) y GraphQL (Peticiones o consultas flexibles
+que operan sobre una única URL cada vez).
