@@ -1,0 +1,12 @@
+python -m venv <nom_entorno>
+
+cd nom_entorno
+
+Scripts\activate
+
+# Definimos el main ...
+
+uvicorn main:app --reload
+
+
+
