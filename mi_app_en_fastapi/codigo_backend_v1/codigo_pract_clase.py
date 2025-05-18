@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 
-# --- DB Pilots setup ---
+# --- DB Pilots and Races setup ---
 DATABASE_URL = "sqlite:///./formula_1.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
