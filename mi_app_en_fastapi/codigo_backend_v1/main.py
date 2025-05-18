@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 import logging # para los mensajes de registro
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional
@@ -6,6 +6,9 @@ from typing import Optional
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+import time
+
 
 app = FastAPI(
         title = "Mi primera API de FastASPI",
@@ -18,7 +21,7 @@ app = FastAPI(
 
 
 logging.basicConfig(
-    level=logging.WARNING, #DEBUG, INFO, WARNING, ERROR, CRITICAL
+    level=logging.INFO, #DEBUG, INFO, WARNING, ERROR, CRITICAL
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 ) # Solo va a logar los niveles superiores o de mayor gravedad.
 logger = logging.getLogger(__name__)
@@ -83,9 +86,14 @@ def custom_greeting(name:str):
         logger.warning("Pepe ha entrado a la web!!!")
     return {"msg": f"Hello, {processed_name}!!!!"}
 
+def enviar_mail_bienvenida(email: str):
+    logger.info(f"Envío de mail de bienvenida a {email}")
+    time.sleep(10) # Simulando el retraso para ver la asincronía
+    logger.info(f"Email de bienvenida enviado a {email}")
+
 
 @app.post("/users/")
-def create_user(user: User):
+def create_user(user: User, background_task: BackgroundTasks):
     logger.info(f"Registro de usuario recibido: {user}")
     
     db = SessionLocal()
@@ -102,8 +110,13 @@ def create_user(user: User):
     db.close()
     # Registramos al usuario en la BBDD
     logger.info(f"Usuario guardado en la BBDD: {user_db.username}")
-    
+    background_task.add_task(enviar_mail_bienvenida, user.email)
     return {
         "msg": "Usuario registrado correctamente",
-        "usuario": user.username
+        "usuario": {
+            "id": user_db.id,
+            "username": user_db.username,
+            "email": user_db.email,
+            "age": user_db.age
+        }    
     }
