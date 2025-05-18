@@ -4,11 +4,15 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 from fastapi import BackgroundTasks
+
+import time
+
+
 
 # --- Logging ---
 logging.basicConfig(
@@ -17,40 +21,86 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- DB setup ---
-DATABASE_URL = "sqlite:///./formulauno.db"
+
+
+# --- DB Pilots setup ---
+DATABASE_URL = "sqlite:///./formula_1.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
 
-class PilotosDB(Base):
-    __tablename__ = "formulauno"
+class PilotsDB(Base):
+    __tablename__ = "pilots"
 
-    pilotos = Column(String, primary_key=True, index=True)
-    victorias = Column(Integer, unique=True, index=True)
-    anosactivo = Column(String, nullable=True)
+    pilot_id = Column(Integer, primary_key=True, index= True, autoincrement=True) #incrementamos el ID en uno cada vez que añadimos un nuevo registro
+    pilot_name = Column(String, unique= True, index=True) # decimos que el nombre del piloto debe ser único, no puede estar repetido
+    victories = Column(Integer, index=True)
+    active_years = Column(String, nullable=True)
+    races_won = relationship("RacesDB", back_populates="winner")
+    
+
+class RacesDB(Base): 
+    __tablename__ = "races"
+    
+    race_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    winner_id = Column(Integer, ForeignKey("pilots.pilot_id"), index=True)
+    year = Column(Integer, index=True)
+    race_name = Column(String, index=True)
+    winner = relationship("PilotsDB", back_populates="races_won")
 
 Base.metadata.create_all(bind=engine)
 
-# --- Pydantic model ---
-class Pilotos(BaseModel):
-    pilotos: str = Field(..., min_length=3, description="Nombre de usuario (mínimo 3 caracteres)")
-    victorias: int = Field(..., description="Email del usuario")
-    anosactivo: str = Field(None, description="Edad no negativa (opcional)")
 
-    @field_validator("pilotos")
+
+
+# --- Pydantic models ---   
+class Races(BaseModel):
+    name: str = Field(..., min_length=3, max_length=20, description="Nombre de la carrera (de 3 a 20 caracteres)")
+    year: int = Field(None, description="Año de la carrera")
+
+    @field_validator("name")
+    def racename(cls, value):
+        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
+            raise ValueError("There must be vowels in the race name!")
+        return value
+    
+    @field_validator("year")
+    def valid_year(cls, value):
+        y = int(time.strftime("%Y", time.gmtime()))
+        if value > y:
+            raise ValueError("The year of the race can't be higher than nowadays!!!")
+        return value
+    
+
+class Pilots(BaseModel):
+    name: str = Field(..., min_length=3, max_length=20, description="Nombre del piloto (de 3 a 20 caracteres)")
+    vict: int = Field(..., description="Numero de victorias del piloto")
+    active_years: int = Field(None, description="Años que ha estado en activo el piloto (opcional)")
+    races_won: list[Races] = Field([], description="Lista de carreras ganadas por un piloto")
+
+    @field_validator("name")
     def username_with_values(cls, value):
         if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
-            raise ValueError("You need vowels in your username!")
+            raise ValueError("There must be vowels in the pilot name!")
         return value
-
+    
+    @field_validator("active_years")
+    def active_pilot(cls, value):
+        if value <=0:
+            raise ValueError("The pilot hasn't been active for at least one year")
+        return value
+    
     @model_validator(mode="after")
-    def long_username_if_age_ge_50(cls, instance):
-        if instance.victorias is not None and instance.victorias >= 5:
-            if len(instance.pilotos) > 12:
-                raise ValueError("You must provide a driver name with 12 chars or less")
-        return instance
+    def victory_validation(cls, instance):
+        if instance.vict != len(instance.races_won):
+            raise ValueError("It's not possible to hace a discrepance between the number of won races and victories")
+        return instance   
+    
+
+
+
+
 
 # --- FastAPI setup ---
 app = FastAPI(
