@@ -94,7 +94,7 @@ class Pilots(BaseModel):
     @model_validator(mode="after")
     def victory_validation(cls, instance):
         if instance.vict != len(instance.races_won):
-            raise ValueError("It's not possible to hace a discrepance between the number of won races and victories")
+            raise ValueError("It's not possible to have a discrepancy between the number of won races and victories")
         return instance   
     
 
