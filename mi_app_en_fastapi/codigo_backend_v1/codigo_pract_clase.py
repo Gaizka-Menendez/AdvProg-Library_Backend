@@ -56,8 +56,10 @@ Base.metadata.create_all(bind=engine)
 
 # --- Pydantic models ---   
 class Races(BaseModel):
+    race_id: int = Field(..., description="Id de la carrera")
     name: str = Field(..., min_length=3, max_length=20, description="Nombre de la carrera (de 3 a 20 caracteres)")
     year: int = Field(None, description="Año de la carrera")
+    winner_id: int = Field(..., description="Id del piloto ganador de la carrera")
 
     @field_validator("name")
     def racename(cls, value):
@@ -74,6 +76,7 @@ class Races(BaseModel):
     
 
 class Pilots(BaseModel):
+    pilot_id: int = Field(..., description="Id del piloto")
     name: str = Field(..., min_length=3, max_length=20, description="Nombre del piloto (de 3 a 20 caracteres)")
     vict: int = Field(..., description="Numero de victorias del piloto")
     active_years: int = Field(None, description="Años que ha estado en activo el piloto (opcional)")
@@ -104,15 +107,62 @@ class Pilots(BaseModel):
 
 # --- FastAPI setup ---
 app = FastAPI(
-    title="Mi primera API con FastAPI",
-    description="Una API de ejemplo con base de datos SQLite.",
+    title="API para la práctica de clase sobre Formula 1",
+    description="API de ejemplo",
     version="1.0.0"
 )
 
-@app.get("/hello")
-def initial_greeting():
-    logger.info("Recibida petición al saludo genérico")
-    return {"msg": "Hola mundo!!!"}
+
+
+#  Quiero preguntar si estos métodos al declarar sus respectivos ids con autoincrement es necesario pasarle algo al método como param
+@app.post("/pilots/")
+async def create_user(pilot: Pilots):
+    # pilot_id = pilot.pilot_id
+    pilot_name = pilot.name
+    victories = pilot.vict
+    active_years = pilot.active_years
+    races_won = pilot.races_won
+    return {
+        "msg": "Información del piloto recibida correctamente",
+        "PiloT name": pilot_name,
+        "Victories": victories,
+        "active_years": active_years,
+        "races_won": races_won
+    }
+    
+@app.post("/races/")
+async def create_user(race: Races):
+    # race_id = race.race_id
+    name = race.name
+    year = race.year
+    winner_id = race.winner_id
+    return {
+        "msg": "Información de la carrera recibida correctamente",
+        "Race name": name,
+        "Year of the race": year,
+        "Winner of the race": winner_id
+    }
+
+
+# método que va a devolver todas las carreras ganadas por un piloto
+@app.get("/pilots/{pilot_name}/races")
+def amount_of_won_races_by_pilot(pilot_name: str):
+    logger.info(f"Petición de la lista de carreras del piloto {pilot_name}")
+    db = SessionLocal()
+    existing = db.query(PilotsDB).filter(PilotsDB.pilot_name == pilot_name).first()
+    if existing:
+        db.close()
+        logger.info(f"Envío del número de carreras ganadas por el piloto {pilot_name}")
+        return {
+            "msg": "Piloto encontrado",
+            "races_won": f"{existing.pilot_name} ha ganado un total de {len(existing.races_won)} carreras",
+            "races": existing.races_won
+            }
+    else: 
+        db.close()
+        logger.warning(f"Envío del número de carreras ganadas por el piloto {pilot_name}")
+        raise HTTPException(status_code=404, detail=f"El piloto {pilot_name} no esta registrado en la BBDD")
+    
 
 #
 # @app.get("/drivers")
