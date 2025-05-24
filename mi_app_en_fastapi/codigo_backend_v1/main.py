@@ -10,6 +10,13 @@ from sqlalchemy.orm import sessionmaker
 import time
 
 
+"""
+ORMs --> Object Relational Mappers
+
+Trasladan la notación de POO a la notación de BBDD, un ejemplo es sqlalchemy. 
+"""
+
+
 app = FastAPI(
         title = "Mi primera API de FastASPI",
         description = "Una API de ejemplo",
@@ -104,9 +111,9 @@ def create_user(user: User, background_task: BackgroundTasks):
         raise HTTPException(status_code=400, detail="El email ya existe en la base de datos")
     
     user_db = UserDB(username=user.username, email=user.email, age=user.age)
-    db.add(user_db)
-    db.commit()
-    db.refresh(user_db)
+    db.add(user_db) # Aquí gracias al ORM de SQLALCHEMY lo traduce a INSERT INTO users VALUES ("name", "email", age)
+    db.commit() # Confirma la inserción en BBDD 
+    db.refresh(user_db) # Actualiza los registros de la tabla para asegurarnos que usamos la última versión
     db.close()
     # Registramos al usuario en la BBDD
     logger.info(f"Usuario guardado en la BBDD: {user_db.username}")

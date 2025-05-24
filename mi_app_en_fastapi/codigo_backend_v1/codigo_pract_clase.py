@@ -184,29 +184,29 @@ def custom_greeting(name: str):
 #     time.sleep(10)  # Simular retardo para ver la asincronía
 #     logger.info(f"✅ Email de bienvenida enviado a {email}")
 
-@app.post("/pilotos/")
-def create_user(pilotos: Pilotos):
-    logger.info(f"📥 Registro de usuario recibido: {pilotos}")
+# @app.post("/pilotos/")
+# def create_user(pilotos: Pilotos):
+#     logger.info(f"📥 Registro de usuario recibido: {pilotos}")
     
-    # db = SessionLocal()
-    # existing = db.query(PilotosDB).filter(PilotosDB.pilotos == pilotos.pilotos).first()
-    # if existing:
-    #     db.close()
-    #     raise HTTPException(status_code=400, detail="El piloto ya está registrado")
-    #
-    # pilotos_db = PilotosDB(pilotosname=pilotos.pilotosname, victorias=pilotos.victorias, anosactivo=pilotos.anosactivo)
-    # db.add(pilotos_db)
-    # db.commit()
-    # db.refresh(pilotos_db)
-    # db.close()
-    # logger.info(f"✅ Piloto guardado: {pilotos_db.pilotosname}")
-    # Tarea en segundo plano
-    # background_tasks.add_task(enviar_email_bienvenida, pilotos.email)
-    return {
-        "msg": "Usuario registrado correctamente",
-        # "pilotos": {
-        #     "piloto": pilotos_db.pilotos,
-        #     "victorias": pilotos_db.victorias,
-        #     "anosactivo": pilotos_db.anosactivo
-        # }
-    }
+#     # db = SessionLocal()
+#     # existing = db.query(PilotosDB).filter(PilotosDB.pilotos == pilotos.pilotos).first()
+#     # if existing:
+#     #     db.close()
+#     #     raise HTTPException(status_code=400, detail="El piloto ya está registrado")
+#     #
+#     # pilotos_db = PilotosDB(pilotosname=pilotos.pilotosname, victorias=pilotos.victorias, anosactivo=pilotos.anosactivo)
+#     # db.add(pilotos_db)
+#     # db.commit()
+#     # db.refresh(pilotos_db)
+#     # db.close()
+#     # logger.info(f"✅ Piloto guardado: {pilotos_db.pilotosname}")
+#     # Tarea en segundo plano
+#     # background_tasks.add_task(enviar_email_bienvenida, pilotos.email)
+#     return {
+#         "msg": "Usuario registrado correctamente",
+#         # "pilotos": {
+#         #     "piloto": pilotos_db.pilotos,
+#         #     "victorias": pilotos_db.victorias,
+#         #     "anosactivo": pilotos_db.anosactivo
+#         # }
+#     }
