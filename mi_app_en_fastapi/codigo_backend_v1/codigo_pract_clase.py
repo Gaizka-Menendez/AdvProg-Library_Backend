@@ -164,19 +164,44 @@ def amount_of_won_races_by_pilot(pilot_name: str):
         raise HTTPException(status_code=404, detail=f"El piloto {pilot_name} no esta registrado en la BBDD")
     
 
-#
-# @app.get("/drivers")
-# async def get_drivers():
-#     logger.info("Acceso al endpoint de los Conductores")
-#     return {"drivers": db.query("SELECT * FROM formulauno")}
-
-@app.get("/hello/{name}")
+@app.get("/pilots/{name}")
 def custom_greeting(name: str):
-    logger.info(f"Recibida petición al saludo personalizado para {name}")
-    processed_name = name.capitalize()
-    if processed_name == "Pepe":
-        logger.warning("Pepe ha entrado a la web!!")
-    return {"msg": f"Hello, {processed_name}!!!"}
+    logger.info(f"Recibida petición obtener el piloto con nombre: {name}")
+    db = SessionLocal()
+    processed_name_wth_spaces = name.replace("_", " ")
+    processed_name = processed_name_wth_spaces.title()
+    pilot = db.query(PilotsDB).filter(PilotsDB.pilot_name == processed_name).first()
+    db.close()
+    if pilot:
+        return {
+            "msg": "Pilot found",
+            "name": pilot.pilot_name,
+            "Victories": pilot.victories,
+            "active_years": pilot.active_years,
+            "races_won": pilot.races_won
+            }
+    else:
+        raise HTTPException(status_code=404, detail=f"El piloto {processed_name} no esta registrado en la BBDD")
+    
+
+@app.get("/pilots/maxGanador/")
+def get_best_pilot():
+    logger.info("Petición para conocer al máximo ganador solicitada")
+    db = SessionLocal()
+    pilot_with_most_wins = db.query(PilotsDB).order_by(PilotsDB.victories.desc()).first()
+    db.close()
+    if pilot_with_most_wins:
+        logger.info("Petición para conocer al máximo ganador concluida")
+        return {
+            "msg": "Piloto con mayor número de victorias encontrado",
+            "name": pilot_with_most_wins.pilot_name,
+            "Victories": pilot_with_most_wins.victories,
+            "active_years": pilot_with_most_wins.active_years,
+            "races_won": pilot_with_most_wins.races_won
+            }
+    else:
+        raise HTTPException(status_code=404, detail=f"No hay pilotots en la BBDD")
+
 
 # def enviar_email_bienvenida(email: str):
 #     logger.info(f"📧 Simulando envío de email a {email}...")
