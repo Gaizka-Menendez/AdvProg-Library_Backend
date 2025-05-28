@@ -1,6 +1,16 @@
 Práctica del Módulo de Programación Avanzada de Gaizka Menéndez Hernández
 
-**Gestión de una Biblioteca Digital o Librería Online**.
+**Gestión de una Biblioteca de forma digital**.
+
+La idea de esta práctica es desarrollar lo que podría ser una web online de una Biblioteca donde se llevane a cabo la gestión de los usuarios y de los libros de la misma. Es decir, que los usuarios puedan interactuar con la web de forma que puedan pedir préstamos o devolver libros y que todo esto quede registrado. Esta es la funcionalidad que busco conseguir.
+
+A continuación voy a detallar un poco que es lo que ocurre en cada una de las clases del "source_code" que es donde se encuentran las diferentes clases de la aplicación.
+
+1. **database.py (BBDD de la app)**
+    * Aquí se encuentra todo aquello relativo a la creación de la base de datos. Usamos la librería SQLAlchemy para definir la url de conexión a la BBDD, crear el engine, definimos la forma de crear las sesiones para operar sobre la BBDD y lo necesario para añadir tablas a nuestra BBDD.
+
+
+    
 
 1.  **Claridad en los Objetos/Entidades:**
     * Puedes definir claramente objetos como `Libro`, `Autor`, `Usuario`, `Préstamo`, `Género`, `Editorial`. Cada uno con sus propios atributos y métodos.
