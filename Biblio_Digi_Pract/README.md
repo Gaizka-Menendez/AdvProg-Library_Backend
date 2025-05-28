@@ -4,7 +4,7 @@ Práctica del Módulo de Programación Avanzada de Gaizka Menéndez Hernández
 
 La idea de esta práctica es desarrollar lo que podría ser una web online de una Biblioteca donde se llevane a cabo la gestión de los usuarios y de los libros de la misma. Es decir, que los usuarios puedan interactuar con la web de forma que puedan pedir préstamos o devolver libros y que todo esto quede registrado. Esta es la funcionalidad que busco conseguir.
 
-A continuación voy a detallar un poco que es lo que ocurre en cada una de las clases del "source_code", cada clase representa una funcionalidad o parte de la aplicación y así cumplimos el principio de Separación de Responsabilidades.
+A continuación voy a detallar un poco que es lo que ocurre en cada una de las clases del "source_code". Cada clase representa una funcionalidad o parte de la aplicación y así cumplimos el principio de Separación de Responsabilidades.
 
 
 
