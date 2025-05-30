@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from .database import * 
 from abc import ABC, abstractmethod, property
 
@@ -14,6 +15,8 @@ class UserDB(Base):
     hashed_password = Column(String)
     contact_mail = Column(String, unique=True, index=True)
     age = Column(Integer, index=True)
+    
+    loans = relationship("Loan_DB", back_populates="user_resp")
     
 
 # La idea es que tanto CD como los libros tengan atributos en comun y aplicando herencia posteriormente cada uno tenga sus particularidades
@@ -44,16 +47,19 @@ class Library_Item(ABC):
         self.available = True
 
 
-class Dvd_DB(Base, Library_Item):
+class Film_DB(Base, Library_Item):
     
-    __tablename__ = "dvds"
+    __tablename__ = "films"
     
     ref_number = Column(Integer, primary_key=True, index=True)
     # It is typically not desirable to have “autoincrement” enabled on a column that refers to another via foreign key, as such a column is required to refer to a value that originates from elsewhere.
     name = Column(String, unique=True, index=True)
-    actors = Column(list(String), index=True)
+    actors = Column(String, index=True)
     available = Column(Boolean, default=True) # Inicialmente lo declaramos a true porque si lo hemos añadido a la BDD es porque lo tenemos
     date_registered = Column(DateTime(timezone=True), server_default=func.now())
+    
+    genres = relationship("Gender_DB", secondary="film_gender_association", back_populates="films")
+    loans = relationship("Loan_DB", back_populates="film_loaned")
 
 
 
@@ -68,7 +74,53 @@ class Book_DB(Base, Library_Item):
     available = Column(Boolean, default=True) # Inicialmente lo declaramos a true porque si lo hemos añadido a la BDD es porque lo tenemos
     date_registered = Column(DateTime(timezone=True), server_default=func.now())
     
+    genres = relationship("Genre_DB", secondary="book_gender_association", back_populates="books")
+    loans = relationship("Loan_DB", back_populates="book_loaned")
     
 
+class Genre_DB(Base):
+    
+    __tablename__ = "genero"
+    
+    genre_id = Column(Integer, primary_key=True, index=True)
+    genre_name = Column(String, unique=True, index=True)
+
+    books = relationship("Book_DB", secondary="book_gender_association", back_populates="genres")
+    films = relationship("Film_DB", secondary="film_gender_association", back_populates="genres")
+
+    
+
+
+class Loan_DB(Base):
+    
+    __tablename__ = "prestamo"
+    
+    loan_id = Column(Integer, primary_key=True, index=True)
+    loan_date = Column(DateTime(timezone=True), server_default=func.now())
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False) # Un préstamo siempre tiene un usuario
+
+    book_ref_number = Column(Integer, ForeignKey("books.ref_number"), nullable=True)
+    film_ref_number = Column(Integer, ForeignKey("films.ref_number"), nullable=True)
+    user_responsible = relationship("UserDB", back_populates="loans")
+    book_loaned = relationship("Book_DB", back_populates="loans")
+    film_loaned = relationship("Film_DB", back_populates="loans")
+
+
+
+# Estas tablas para las relaciones N:M de mi diagrama me he servido de Gemini para generarlas
+    
+film_gender_association_table = Table(
+        "film_gender_association", Base.metadata,
+        Column("film_ref_number", Integer, ForeignKey("films.ref_number"), primary_key=True),
+        Column("gender_id", Integer, ForeignKey("genero.gender_id"), primary_key=True)
+    )
     
     
+book_gender_association_table = Table(
+        "book_gender_association", Base.metadata,
+        Column("book_ref_number", Integer, ForeignKey("books.ref_number"), primary_key=True),
+        Column("gender_id", Integer, ForeignKey("genero.gender_id"), primary_key=True)
+    )
+    
+    
+Base.metadata.create_all(bind=engine)

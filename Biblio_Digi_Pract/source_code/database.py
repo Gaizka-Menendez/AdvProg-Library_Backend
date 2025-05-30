@@ -5,7 +5,8 @@ from sqlalchemy.orm import sessionmaker
 LIBRARY_DATABASE_URL = "sqlite:///./library_app.db"
 
 engine = create_engine(LIBRARY_DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False) 
+Local_Session = sessionmaker(bind=engine, autocommit=False, autoflush=False) 
+session = Local_Session()
 # autocommit es False porque nosotros somos los que queremos confirmar cuando commitear esos cambios
 # bind = engine cada sesion creada que use el engine creado
 Base = declarative_base()
