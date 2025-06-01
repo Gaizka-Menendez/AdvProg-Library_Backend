@@ -11,7 +11,7 @@ class UserDB(Base):
     __tablename__ = "users"
     
     user_id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, unique=True, index=True, nullable=False)
+    full_name = Column(String, index=True, nullable=False)
     date_added = Column(DateTime(timezone=True), server_default=func.now())
     hashed_password = Column(String, nullable=False)
     contact_mail = Column(String, unique=True, index=True, nullable=False)
@@ -23,12 +23,12 @@ class UserDB(Base):
     def __init__(self, name: str, mail: str, passwd: str,  age: int = None):
         self.full_name = name
         self.contact_mail = mail
-        self.age = age
         self.hashed_password = passwd
+        self.age = age
     
 
 # La idea es que tanto las peliculas como los libros tengan atributos en comun y aplicando herencia posteriormente cada uno tenga sus particularidades
-class Library_Item(ABC):
+class Library_Item:
     
     def __init__(self, name: str):
         self._name = name
@@ -148,7 +148,7 @@ class Loan_DB(Base):
     book_ref_number = Column(Integer, ForeignKey("books.ref_number"), nullable=True)
     film_ref_number = Column(Integer, ForeignKey("films.ref_number"), nullable=True)
     
-    user_responsible = relationship("UserDB", back_populates="loans")
+    user_resp = relationship("UserDB", back_populates="loans")
     book_loaned = relationship("Book_DB", back_populates="loans")
     film_loaned = relationship("Film_DB", back_populates="loans")
     

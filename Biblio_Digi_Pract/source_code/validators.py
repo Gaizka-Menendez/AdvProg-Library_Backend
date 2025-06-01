@@ -23,7 +23,7 @@ class Book(BaseModel):
     def author_requirements(cls, value):
         if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del autor debe contener vocales!")
-        if len(value.split(" ")!=3):
+        if len(value.split(" "))!=3:
             raise ValueError("El campo autor debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
         return value
 
@@ -34,7 +34,7 @@ class Film(BaseModel):
     actors: str = Field(..., description="Actores de la película")
     genres_ids: list[int] = Field(..., min_items=1, description="IDs de los géneros a los que pertenece la película")
     
-    @field_validator
+    @field_validator("name")
     def actor_str_requirements(cls, value):
         if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("Los actores de la película deben contener vocales!")
@@ -44,7 +44,7 @@ class User(BaseModel):
     
     # user_id: int = Field(..., description="Id del usuario en el sistema")
     name: str = Field(..., min_length=3, max_length=40, description="Nombre del usuario")
-    age = int[Optional] = Field(..., min=5, description="Edad (opcional) del usuario")
+    age: Optional[int] = Field(None, min=5, description="Edad (opcional) del usuario")
     password: str = Field(..., min_length=8, max_length=20, description="Contraseña del usuario. Será cifrada antes de guardarse.")
     contact_mail: EmailStr
     
@@ -52,7 +52,7 @@ class User(BaseModel):
     def author_requirements(cls, value):
         if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del usuario debe contener vocales!")
-        if len(value.split(" ")!=3):
+        if len(value.split(" "))!=3:
             raise ValueError("El campo usuario debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
         return value
 
@@ -60,8 +60,8 @@ class Loan(BaseModel):
     
     # loan_id: int = Field(..., description="Id del préstmo en el sistema")
     user_id: int = Field(..., description="Id del usuario que ha realizado el préstamo")
-    book_ref_number: int[Optional] = Field(default=None, description="Referencia del libro (opcional) alquilado")
-    film_ref_number: int[Optional] = Field(default=None, description="Referencia de la película (opcional) alquilada")
+    book_ref_number: Optional[int] = Field(default=None, description="Referencia del libro (opcional) alquilado")
+    film_ref_number: Optional[int] = Field(default=None, description="Referencia de la película (opcional) alquilada")
     
     @model_validator(mode= "after")
     def loan_minimum_items(cls, instance):
