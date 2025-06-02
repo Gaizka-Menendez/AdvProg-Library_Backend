@@ -2,7 +2,7 @@ from .database import *
 from .models import *
 
 from pydantic import BaseModel, Field, field_validator, model_validator, EmailStr
-from typing import Optional
+from typing import Optional, List 
 
 class Book(BaseModel):
     
@@ -11,17 +11,17 @@ class Book(BaseModel):
     
     name: str = Field(..., min_length=3, max_length=40, description="Nombre del libro")
     author: str = Field(..., min_length=10, max_length=40, description="Autor del libro")
-    genres_ids: list[int] = Field(..., min_items=1, description="IDs de los géneros a los que pertenece el libro")
+    genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece el libro")
     
     @field_validator("name")
     def bookname_with_vowels(cls, value):
-        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del libro debe contener vocales!")
         return value
     
     @field_validator("author")
     def author_requirements(cls, value):
-        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del autor debe contener vocales!")
         if len(value.split(" "))!=3:
             raise ValueError("El campo autor debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
@@ -35,11 +35,12 @@ class Film(BaseModel):
     # film_ref: int = Field(..., description="Referencia de la película en el sistema")
     name: str = Field(..., min_length=3, max_length=40, description="Nombre de la película")
     actors: str = Field(..., description="Actores de la película")
-    genres_ids: list[int] = Field(..., min_items=1, description="IDs de los géneros a los que pertenece la película")
+    genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece la película")
     
-    @field_validator("name")
-    def actor_str_requirements(cls, value):
-        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
+    
+    @field_validator("actors")
+    def actors_str_requirements(cls, value): 
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("Los actores de la película deben contener vocales!")
         return value
     
@@ -55,8 +56,8 @@ class User(BaseModel):
     contact_mail: EmailStr
     
     @field_validator("name")
-    def author_requirements(cls, value):
-        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
+    def username_requirements(cls, value): 
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del usuario debe contener vocales!")
         if len(value.split(" "))!=3:
             raise ValueError("El campo usuario debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
@@ -77,11 +78,11 @@ class Loan(BaseModel):
 
 class Genre(BaseModel):
     
-    # genre_id: int = Field(..., description="Id del usuario en el sistema")
+    # genre_id: int = Field(..., description="Id del usuario en el sistema") # Este campo no es necesario para el Pydantic Model si la DB lo auto-genera
     genre_name: str = Field(..., min_length=3, max_length=40, description="Nombre del género")
     
     @field_validator("genre_name")
     def genrename_with_vowels(cls, value):
-        if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
-            raise ValueError("El nombre del libro debe contener vocales!")
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
+            raise ValueError("El nombre del género debe contener vocales!") 
         return value

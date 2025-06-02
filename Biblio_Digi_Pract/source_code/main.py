@@ -1,7 +1,7 @@
 from .database import *
 from .models import *
 from .validators import *
-from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, status
+from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 import logging
 import bcrypt
@@ -69,12 +69,21 @@ def get_user(name: str, db: Session = Depends(get_db)):
 
 
 @app.post("/Libros/", status_code=status.HTTP_201_CREATED)
-def create_book(book: Book, db: Session = Depends(get_db)):
+def create_book(book: Book, genre_name: Optional[str] = Query(None, description="Nombre del género a añadir (opcional)"), db: Session = Depends(get_db)):
     logger.info(f"Recibida petición para añadir a la BDD el libro {book.name}")
     existing = db.query(Book_DB).filter(Book_DB.name==book.name).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este libro ya se ha registrado")
+    genre = db.query(Genre_DB).filter(Genre_DB.genre_name==genre_name).first()
+    if genre is None:
+        genre = Genre_DB(name=genre_name)
+        db.add(genre)
+        db.commit()
+        db.refresh(genre)
+        genre_obj = genre
     b = Book_DB(name=book.name, author=book.author)
+    if genre_obj.genre_id not in book.genres_ids:
+        b.genres.append(genre_obj)
     db.add(b)
     db.commit()
     db.refresh(b)
@@ -94,13 +103,29 @@ def get_book(name: str, db: Session = Depends(get_db)):
 
 
 
+# /Peliculas/?genre_name=Accion el parámetro genre_name lo que hace es que se pase ese parámetro en la ruta también de forma
+
 @app.post("/Peliculas/", status_code=status.HTTP_201_CREATED)
-def create_film(film: Film, db: Session = Depends(get_db)):
+def create_film(film: Film, genre_name: Optional[str] = Query(None, description="Nombre del género a añadir (opcional)"), db: Session = Depends(get_db)):
     logger.info(f"Recibida petición para añadir a la BDD la pelicula {film.name}")
     existing = db.query(Film_DB).filter(Film_DB.name==film.name).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Esta pelicula ya se encuentra registrado")
-    f = Book_DB(name=film.name, actors=film.actors)
+    if genre_name:
+        genre = db.query(Genre_DB).filter(Genre_DB.genre_name==genre_name).first()
+        if genre is None:
+            logger.info(f"El género '{genre_name}' no existe. Creando nuevo género.")
+            new_genre = Genre_DB(name=genre_name)
+            db.add(new_genre)
+            db.commit()
+            db.refresh(new_genre)
+        else:
+            new_genre = genre
+        film.genre_id=new_genre.genre_id
+    else:
+        genre_passed_through_film = film.genre_id
+    film.genre_id=new_genre.genre_id or genre_passed_through_film
+    f = Film_DB(name=film.name, actors=film.actors, genre=film.genre_id)
     db.add(f)
     db.commit()
     db.refresh(f)
