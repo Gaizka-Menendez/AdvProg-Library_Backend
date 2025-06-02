@@ -12,6 +12,17 @@ A continuación voy a detallar un poco que es lo que ocurre en cada una de las c
     * Aquí se encuentra todo aquello relativo a la creación de la base de datos. Usamos la librería SQLAlchemy para definir la url de conexión a la BBDD, crear el engine, definimos la forma de crear las sesiones para operar sobre la BBDD y lo necesario para añadir tablas a nuestra BBDD.
 
 
+2. **validators.py (schema class para la app)**
+
+    * Esta clase es la que gestiona las validaciones pertinentes a los diferentes parámetros y variables creadas en cada una de las clases que componen la app. A continuación voy a explicar un poco las decisiones tomadas y el porque de las mismas.
+
+        * Para la clase `Book` que representa los libros de la bilbioteca se validan los campos de nombre, autor y el género al que pertenece. Sus métodos validadores comprueban que el nombre de los mismos contienen vocales (reutilizando un poco lo visto en clase) y para los autores nos aseguramos que se especifiquen con un String compuesto de lo que sería 3 palabras, 1 para el nombre y otras dos para sus dos primeros apellidos. Para los tres campos se establece un número mínimo de caracteres y en el caso de géneros mínimo a 1 género tiene que pertenecer un libro.
+
+        * La clase `Film`, donde se validan las películas que se pueden alquilar de nuestra biblioteca. Awui similar que para la clase libro se realizan las mismas validaciones de variables. 
+
+        * La clase `Loan` hace referencia al préstamo de un libro y/o una película como máximo. He de reconocer que mi intención inicial era permitir que se pudiesen alquilar más de un item de cada tipo pero a la hora de la implementación vi que era más complejo y que debería de modificar algunos endpoints y clases ya definidas y por tema tiempos y planificación no me daría tiempo, por lo tanto lo dejo como una posible futura mejora.
+
+
 
 
 
