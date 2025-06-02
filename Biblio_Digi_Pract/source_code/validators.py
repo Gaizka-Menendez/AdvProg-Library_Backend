@@ -26,6 +26,9 @@ class Book(BaseModel):
         if len(value.split(" "))!=3:
             raise ValueError("El campo autor debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
         return value
+    
+    def get_type(self):
+        return "Book"
 
 class Film(BaseModel):
     
@@ -39,6 +42,9 @@ class Film(BaseModel):
         if not any(vowel in value for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("Los actores de la película deben contener vocales!")
         return value
+    
+    def get_type(self):
+        return "Film"
     
 class User(BaseModel):
     

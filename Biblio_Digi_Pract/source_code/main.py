@@ -5,6 +5,7 @@ from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, stat
 from sqlalchemy.orm import Session
 import logging
 import bcrypt
+from sqlalchemy import or_, and_
 
 Base.metadata.create_all(bind=engine)
 
@@ -144,5 +145,31 @@ def get_genre(name: str, db: Session = Depends(get_db)):
 
 
 @app.post("/Realizar_un_prestamo/", status_code=status.HTTP_201_CREATED)
-def loan_an_article(books: list[Book] = [], films: list[Film] = [], db: Session = Depends(get_db)):
-    pass
+def loan_articles( user: User, book: Book = None, film: Film = None, db: Session = Depends(get_db)):
+    logger.info("Petición recibida para realizar un préstamo")
+    ref_book = None
+    ref_film = None
+    existing_user = db.query(UserDB).filter(and_(UserDB.full_name==user.name, UserDB.contact_mail==user.contact_mail)).first()
+    if existing_user:
+        logger.info("Analisis del libro solicitado")
+        if book:
+            existing_book = db.query(Book_DB).filter(Book_DB.name==book.name).first()
+            if not(existing_book) or not(existing_book.available):
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {book.name} no existe o no se encuentra disponible")
+            db.query(Book_DB).filter(Book_DB.name==book.name).update({"available": False})
+            ref_book = existing_book.ref_number
+        logger.info("Analisis de la película solicitada") 
+        if film:  
+            existing_film = db.query(Film_DB).filter(Film_DB.name==film.name).first()
+            if not(existing_film) or not(existing_film.available):
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {film.name} no existe o no se encuentra disponible")
+            db.query(Film_DB).filter(Film_DB.name==film.name).update({"available": False})
+            ref_film = existing_film.ref_number
+        logger.info("Analisis completado. Procediendo a registrar el prestamo")
+    id_user = existing_user.user_id
+    l = Loan_DB(id_user, ref_book, ref_film)
+    db.add(l)
+    db.commit()
+    db.refresh(l)
+    
+    return l

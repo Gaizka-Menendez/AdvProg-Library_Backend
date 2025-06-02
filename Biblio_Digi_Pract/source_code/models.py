@@ -152,6 +152,11 @@ class Loan_DB(Base):
     book_loaned = relationship("Book_DB", back_populates="loans")
     film_loaned = relationship("Film_DB", back_populates="loans")
     
+    def __init__(self, user_id: int, book_ref_number: int, film_ref_number: int):
+        self.user_id=user_id
+        self.book_ref_number=book_ref_number
+        self.film_ref_number=film_ref_number
+    
 
 
 # Estas tablas para las relaciones N:M de mi diagrama me he servido de Gemini para generarlas
