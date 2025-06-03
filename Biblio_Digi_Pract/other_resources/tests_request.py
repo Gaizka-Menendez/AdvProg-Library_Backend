@@ -5,24 +5,24 @@ import json
 url = "http://127.0.0.1:8000/Usuarios/"
 
 user1 = {
-    "name": "Ana Garcia Herrero",
+    "full_name": "Ana Garcia Herrero",
     "contact_mail": "ana.garcia@example.com",
     "age": 24,
-    "password": "ILOVEFLOWERS"
+    "hashed_password": "ILOVEFLOWERS"
 }
 
 user2 = {
-    "name": "Juan Perez Arriaga",
+    "full_name": "Juan Perez Arriaga",
     "contact_mail": "juan.perez@example.com",
     "age": 55,
-    "password": "JuanintheBest"
+    "hashed_password": "JuanintheBest"
 }
 
 user3 = {
-    "name": "Fernando Alonso Torres",
+    "full_name": "Fernando Alonso Torres",
     "contact_mail": "fenandito@example.com",
     "age": 33,
-    "password": "Elnano33"
+    "hashed_password": "Elnano33"
 }
 
 users = [user1, user2, user3]
@@ -150,9 +150,9 @@ for i, film_data in enumerate(films_to_create):
 url_loan = "http://127.0.0.1:8000/Realizar_un_prestamo/"
 
 user_data = {
-    "name": "Juan Perez Arriaga",
+    "full_name": "Juan Perez Arriaga",
     "contact_mail": "juan.perez@example.com",
-    "password": "JuanintheBest"
+    "hashed_password": "JuanintheBest"
 }
 
 book_data = {
@@ -276,6 +276,8 @@ print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
 
 
 
+
+
 # --- URLs de tus endpoints ---
 URL_BASE = "http://127.0.0.1:8000"
 URL_DEVOLVER = f"{URL_BASE}/Devolver_prestamo"
@@ -313,3 +315,66 @@ response = requests.put(
 print(f"--- Devolución de Préstamo (Libro: Harry Potter) ---")
 print(f"Código de respuesta: {response.status_code}")
 print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+
+
+# Modificar los valores de un usuario:
+
+
+
+
+
+
+
+URL_BASE = "http://127.0.0.1:8000"
+
+
+create_url = f"{URL_BASE}/Usuarios/"
+user_data_create = {
+        "full_name": "Usuario Patch Simple",
+        "contact_mail": "patch.simple@example.com",
+        "hashed_password": "PasswordSimple123!",
+        "age": 29
+    }
+response = requests.post(create_url, json=user_data_create)
+print(f"Código de respuesta: {response.status_code}")
+print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+
+
+user_data_modified = {
+        "full_name": "Mi Usuario Simple",
+        "age": 27
+    }
+
+url = f"{URL_BASE}/Usuarios/4/Perfil_de_usuario/"
+
+response = requests.patch(url, json=user_data_modified)
+print(f"Código de respuesta: {response.status_code}")
+print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+
+
+
+
+
+# Borrar un libro:
+
+import requests
+import json
+
+# URL base de tu API FastAPI
+URL_BASE = "http://127.0.0.1:8000"
+
+# ID de la referencia del libro a borrar
+# ¡IMPORTANTE! Asegúrate de que este ID exista en tu base de datos.
+BOOK_REF_TO_DELETE = 1 
+
+# URL completa para el endpoint de borrado de libros
+URL_DELETE_BOOK = f"{URL_BASE}/Libros/{BOOK_REF_TO_DELETE}/"
+
+print(f"--- Intentando borrar el libro con referencia: {BOOK_REF_TO_DELETE} ---")
+print(f"URL de la petición: {URL_DELETE_BOOK}")
+
+# Realizar la petición DELETE
+response = requests.delete(URL_DELETE_BOOK)
+
+# Imprimir el código de estado de la respuesta
+print(f"Código de respuesta: {response.status_code}")

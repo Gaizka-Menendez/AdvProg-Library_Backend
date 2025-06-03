@@ -50,16 +50,31 @@ class Film(BaseModel):
 class User(BaseModel):
     
     # user_id: int = Field(..., description="Id del usuario en el sistema")
-    name: str = Field(..., min_length=3, max_length=40, description="Nombre del usuario")
+    full_name: str = Field(..., min_length=3, max_length=40, description="Nombre del usuario")
     age: Optional[int] = Field(None, min=5, description="Edad (opcional) del usuario")
-    password: str = Field(..., min_length=8, max_length=20, description="Contraseña del usuario. Será cifrada antes de guardarse.")
+    hashed_password: str = Field(..., min_length=8, max_length=20, description="Contraseña del usuario. Será cifrada antes de guardarse.")
     contact_mail: EmailStr
     
-    @field_validator("name")
+    @field_validator("full_name")
     def username_requirements(cls, value): 
         if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
             raise ValueError("El nombre del usuario debe contener vocales!")
         if len(value.split(" "))!=3:
+            raise ValueError("El campo usuario debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
+        return value
+    
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = Field(None, min_length=3, max_length=40, description="Nuevo nombre completo del usuario.")
+    age: Optional[int] = Field(None, ge=5, description="Nueva edad (opcional) del usuario.") # Corregido a 'ge'
+    password: Optional[str] = Field(None, min_length=8, max_length=20, description="Nueva contraseña del usuario. Será cifrada antes de guardarse.")
+    contact_mail: Optional[EmailStr] = Field(None, description="Nueva dirección de correo electrónico del usuario.")
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name_update(cls, value):
+        if not any(vowel in value.lower() for vowel in ["a", "e", "i", "o", "u"]):
+            raise ValueError("El nombre del usuario debe contener vocales!")
+        if len(value.split(" ")) != 3:
             raise ValueError("El campo usuario debe estar compuesto de tres cadenas de caracteres, una para su nombre y las dos siguientes sus dos primeros apellidos")
         return value
 

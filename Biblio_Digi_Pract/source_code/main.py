@@ -1,7 +1,7 @@
 from .database import *
 from .models import *
 from .validators import *
-from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, status, Query
+from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 import logging
 import bcrypt
@@ -34,6 +34,12 @@ def get_db():
         db.close()
         
 
+def hash_password(pwd: str):
+    pwd_to_encode = pwd.encode("utf-8")
+    sal = bcrypt.gensalt()
+    encripted_pwd = bcrypt.hashpw(pwd_to_encode, sal)
+    return encripted_pwd.decode("utf-8")
+
 
 @app.post("/Usuarios/", status_code=status.HTTP_201_CREATED)
 async def create_user(user: User, db: Session = Depends(get_db)):
@@ -43,16 +49,13 @@ async def create_user(user: User, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El usuario o el correo proporcionados ya existen en la base de datos.")
     logger.info("Cifrando contraseña del usuario...")
     # para la contraseña del usuario la cifraremos haciendo uso de la librería bcrypt
-    pwd = user.password.encode("utf-8")
-    sal = bcrypt.gensalt()
-    encripted_pwd = bcrypt.hashpw(pwd, sal)
-    passwd_str=encripted_pwd.decode("utf-8")
+    psswd_str = hash_password(user.hashed_password)
     logger.info("Contraseña cifrada!")
-    usr_toadd = UserDB(full_name=user.name, contact_mail=user.contact_mail, hashed_password=passwd_str, age=user.age)
+    usr_toadd = UserDB(full_name=user.full_name, contact_mail=user.contact_mail, hashed_password=psswd_str, age=user.age)
     db.add(usr_toadd)
     db.commit()
     db.refresh(usr_toadd)
-    logger.info(f"Usuario {user.name} registrado en la BDD correctamente")
+    logger.info(f"Usuario {user.full_name} registrado en la BDD correctamente")
     
     return usr_toadd
 
@@ -68,6 +71,25 @@ def get_user(name: str, db: Session = Depends(get_db)):
     logger.info("Petición resuelta")
     return existing
 
+@app.patch("/Usuarios/{user_id}/Perfil_de_usuario", status_code=status.HTTP_200_OK)
+def modify_user_fields(user_update: UserUpdate, user_id: int = Path(..., description="ID del usuario a modificar"),  db: Session = Depends(get_db)):
+    logger.info(f"Petición recibida para modificar el usuario con ID: {user_id}")
+    existing_user = db.query(UserDB).filter(UserDB.user_id==user_id).first()
+    if not existing_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Este usuario no esta registrado en la BDD")
+    update_data = user_update.model_dump(exclude_unset=True)
+    if "hashed_password" in update_data:
+        pwd_ciphered = hash_password(update_data["hashed_password"])
+        setattr(existing_user, "hashed_password", pwd_ciphered)
+    for key, value in update_data.items():
+        if key != "hashed_password":
+            setattr(existing_user, key, value)
+    db.commit()
+    db.refresh(existing_user)
+    
+    return existing_user
+    
+        
 
 @app.post("/Libros/", status_code=status.HTTP_201_CREATED)
 def create_book(book: Book, genre_name: Optional[str] = Query(None, description="Nombre del género a añadir (opcional)"), db: Session = Depends(get_db)):
@@ -100,7 +122,7 @@ def create_book(book: Book, genre_name: Optional[str] = Query(None, description=
     return b
 
 
-@app.get("/libros/{name}", status_code=status.HTTP_200_OK)
+@app.get("/Libros/{name}", status_code=status.HTTP_200_OK)
 def get_book(name: str, db: Session = Depends(get_db)):
     logger.info("Petición recibida para obtener la información de un libro")
     existing = db.query(Book_DB).filter(Book_DB.name==name).first()
@@ -157,6 +179,16 @@ def get_film(name: str, db: Session = Depends(get_db)):
     return existing
 
 
+@app.get("/Peliculas/{name}/actors", status_code=status.HTTP_200_OK)
+def get_film_actors(name: str, db: Session = Depends(get_db)):
+    logger.info("Petición recibida para obtener la información de una pelicula")
+    existing = db.query(Film_DB).filter(Film_DB.name==name).first()
+    if not(existing):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La pelicula no esta registrada en la BDD")
+    logger.info("Petición resuelta")
+    return existing.actors_listing()
+
+
 @app.post("/Generos/", status_code=status.HTTP_201_CREATED)
 def create_genre(gen: Genre, db: Session = Depends(get_db)):
     logger.info(f"Recibida petición para añadir a la BDD la pelicula {gen.genre_name}")
@@ -172,7 +204,7 @@ def create_genre(gen: Genre, db: Session = Depends(get_db)):
     return g
 
 
-@app.get("/Peliculas/{name}", status_code=status.HTTP_200_OK)
+@app.get("/Generos/{name}", status_code=status.HTTP_200_OK)
 def get_genre(name: str, db: Session = Depends(get_db)):
     logger.info("Petición recibida para obtener la información de un genero en concreto")
     existing = db.query(Genre_DB).filter(Genre_DB.genre_name==name).first()
@@ -189,7 +221,7 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
     ref_film = None
     if book is None and film is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {book.name} no existe o no se encuentra disponible")
-    existing_user = db.query(UserDB).filter(and_(UserDB.full_name==user.name, UserDB.contact_mail==user.contact_mail)).first()
+    existing_user = db.query(UserDB).filter(and_(UserDB.full_name==user.full_name, UserDB.contact_mail==user.contact_mail)).first()
     if existing_user:
         logger.info("Analisis del libro solicitado")
         if book:
@@ -251,3 +283,25 @@ def loan_returned(loan: Loan, db: Session = Depends(get_db)):
     db.refresh(existing_loan)
     
     return existing_loan
+
+
+@app.delete("/Libros/{ref_number}/", status_code=status.HTTP_204_NO_CONTENT)
+def delete_book(ref_number: int, db: Session = Depends(get_db)):
+    logger.info(f"Petición de borrado del libro con referencia: {ref_number}")
+    existing_book = db.query(Book_DB).filter(Book_DB.ref_number==ref_number).first()
+    if existing_book:
+        db.delete(existing_book)
+        db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "No se ha encontrado el registro correspondiente al libro que hay que borrar")
+    
+    
+@app.delete("/Peliculas/{ref_number}/", status_code=status.HTTP_204_NO_CONTENT)
+def delete_film(ref_number: int, db: Session = Depends(get_db)):
+    logger.info(f"Petición de borrado del libro con referencia: {ref_number}")
+    existing_film = db.query(Film_DB).filter(Film_DB.ref_number==ref_number).first()
+    if existing_film:
+        db.delete(existing_film)
+        db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "No se ha encontrado el registro correspondiente a la pelicula que hay que borrar")
