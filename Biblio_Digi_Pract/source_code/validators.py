@@ -65,7 +65,6 @@ class User(BaseModel):
 
 class Loan(BaseModel):
     
-    # loan_id: int = Field(..., description="Id del préstmo en el sistema")
     user_id: int = Field(..., description="Id del usuario que ha realizado el préstamo")
     book_ref_number: Optional[int] = Field(default=None, description="Referencia del libro (opcional) alquilado")
     film_ref_number: Optional[int] = Field(default=None, description="Referencia de la película (opcional) alquilada")

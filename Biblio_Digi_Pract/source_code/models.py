@@ -41,13 +41,13 @@ class Library_Item:
     
     @property
     def status(self):
-        return self._available # si esta disponible o no en nuestra web para alquilar este item
+        return self.available # si esta disponible o no en nuestra web para alquilar este item
     
     def item_took(self):
-        self._available = False
+        self.available = False
     
     def item_returned(self):
-        self._available = True
+        self.available = True
         
     @abstractmethod
     def get_item_type(self):
@@ -151,6 +151,7 @@ class Loan_DB(Base):
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False) # Un préstamo siempre tiene un usuario
     book_ref_number = Column(Integer, ForeignKey("books.ref_number"), nullable=True)
     film_ref_number = Column(Integer, ForeignKey("films.ref_number"), nullable=True)
+    return_date = Column(DateTime(timezone=True), nullable=True)
     
     user_resp = relationship("UserDB", back_populates="loans")
     book_loaned = relationship("Book_DB", back_populates="loans")

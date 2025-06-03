@@ -5,7 +5,7 @@ from fastapi import FastAPI, Body, BackgroundTasks, Depends, HTTPException, stat
 from sqlalchemy.orm import Session
 import logging
 import bcrypt
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, DateTime
 
 Base.metadata.create_all(bind=engine)
 
@@ -57,7 +57,7 @@ async def create_user(user: User, db: Session = Depends(get_db)):
     return usr_toadd
 
 
-@app.get("/usuarios/{name}", status_code=status.HTTP_200_OK)
+@app.get("/Usuarios/{name}", status_code=status.HTTP_200_OK)
 def get_user(name: str, db: Session = Depends(get_db)):
     logger.info("Petición recibida para obtener la información de un usuario")
     existing = db.query(UserDB).filter(UserDB.full_name==name).all()
@@ -187,6 +187,8 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
     logger.info("Petición recibida para realizar un préstamo")
     ref_book = None
     ref_film = None
+    if book is None and film is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {book.name} no existe o no se encuentra disponible")
     existing_user = db.query(UserDB).filter(and_(UserDB.full_name==user.name, UserDB.contact_mail==user.contact_mail)).first()
     if existing_user:
         logger.info("Analisis del libro solicitado")
@@ -195,6 +197,8 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
             if not(existing_book) or not(existing_book.available):
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {book.name} no existe o no se encuentra disponible")
             existing_book.item_took() # con las funciones de la clase abstaracte decimos que han cogido ese item
+            db.add(existing_book)
+            # db.refresh(existing_book)
             ref_book = existing_book.ref_number
         logger.info("Analisis de la película solicitada") 
         if film:  
@@ -202,6 +206,8 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
             if not(existing_film) or not(existing_film.available):
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Error, el recurso con nombre {film.name} no existe o no se encuentra disponible")
             existing_film.item_took()
+            db.add(existing_film)
+            # db.refresh(existing_film)
             ref_film = existing_film.ref_number
         logger.info("Analisis completado. Procediendo a registrar el prestamo")
     else:
@@ -218,4 +224,30 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
 @app.put("Devolver_prestamo", status_code=status.HTTP_200_OK)
 def loan_returned(loan: Loan, db: Session = Depends(get_db)):
     logger.info("Petición recibida para devolver un préstamo")
+    if loan.film_ref_number and loan.book_ref_number:
+        existing_loan = db.query(Loan_DB).filter(and_(Loan_DB.user_id==loan.user_id, Loan_DB.book_ref_number==loan.book_ref_number, Loan_DB.film_ref_number==loan.film_ref_number)).first()
+    elif loan.film_ref_number and loan.book_ref_number is None:
+        existing_loan = db.query(Loan_DB).filter(and_(Loan_DB.user_id==loan.user_id, Loan_DB.film_ref_number==loan.film_ref_number)).first()
+    elif loan.film_ref_number is None and loan.book_ref_number:
+        existing_loan = db.query(Loan_DB).filter(and_(Loan_DB.user_id==loan.user_id, Loan_DB.book_ref_number==loan.book_ref_number)).first()
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puede existir un préstamo donde no se haya prestado nada!!")
+    if(existing_loan):
+        if existing_loan.book_ref_number:
+            existing_book = db.query(Book_DB).filter(Book_DB.ref_number==existing_loan.book_ref_number).first()
+            existing_book.item_returned()
+            db.add(existing_book)
+            db.refresh(existing_book)
+        if existing_loan.film_ref_number:
+            existing_film = db.query(Film_DB).filter(Film_DB.ref_number==existing_loan.film_ref_number).first()
+            existing_film.item_returned()
+            db.add(existing_film)
+            db.refresh(existing_film)
+    else:
+         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No existe el prestamo")       
+    existing_loan.return_date = func.now()
+    db.add(existing_loan)
+    db.commit()
+    db.refresh(existing_loan)
     
+    return existing_loan

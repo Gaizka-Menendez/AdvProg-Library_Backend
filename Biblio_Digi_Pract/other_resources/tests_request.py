@@ -5,7 +5,7 @@ import json
 url = "http://127.0.0.1:8000/Usuarios/"
 
 user1 = {
-    "name": "Ana Garcia",
+    "name": "Ana Garcia Herrero",
     "contact_mail": "ana.garcia@example.com",
     "age": 24,
     "password": "ILOVEFLOWERS"
@@ -35,7 +35,7 @@ for u in users:
 # Prueba del método get de usuarios
 
 name = "Fernando Alonso Torres"
-url = f"http://127.0.0.1:8000/usuarios/{name}"
+url = f"http://127.0.0.1:8000/Usuarios/{name}"
 
 response = requests.get(url)
 print(f"Código de respuesta: {response.status_code}")
@@ -43,6 +43,9 @@ print(f"Respuesta: {response.json()}")
 
 
 # Añadimos unos cuantos géneros
+
+url = f"http://127.0.0.1:8000/Generos/"
+
 genre_data1 = {
     "genre_name":"Accion",
 }
@@ -172,84 +175,100 @@ print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
 
 
 
-# Ahora solo préstamo de la película
+# # Ahora solo préstamo de la película
 
-url_loan = "http://127.0.0.1:8000/Realizar_un_prestamo/"
-user_data = {
-    "name": "Ana Garcia",
-    "contact_mail": "ana.garcia@example.com",
-    "password": "ILOVEFLOWERS"
-}
+# url_loan = "http://127.0.0.1:8000/Realizar_un_prestamo/"
+# user_data = {
+#     "name": "Ana Garcia Herrero",
+#     "contact_mail": "ana.garcia@example.com",
+#     "password": "ILOVEFLOWERS"
+# }
 
-film_data = {
-    "name": "Die Hard", 
-    "actors": "Bruce Willis, Alan Rickman, Bonnie Bedelia"
-}
-response = requests.post(
-    url_loan,
-    json={
-        "user": user_data,
-        "book": None, # Omitir o enviar como None
-        "film": film_data
-    }
-)
+# film_data = {
+#     "name": "Die Hard", 
+#     "actors": "Bruce Willis, Alan Rickman, Bonnie Bedelia"
+# }
+# response = requests.post(
+#     url_loan,
+#     json={
+#         "user": user_data,
+#         "book": None,
+#         "film": film_data
+#     }
+# )
 
-print(f"\n--- Préstamo de Película ---")
-print(f"Código de respuesta: {response.status_code}")
-print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
-
-
-# Simulamos el fallo 
-
-import requests
-import json
-
-# URL de tu endpoint de préstamo
-url_loan = "http://127.0.0.1:8000/Realizar_un_prestamo/"
-
-# Datos del usuario
-user_data = {
-    "name": "Juan Perez Arriaga",
-    "contact_mail": "juan.perez@example.com",
-    "password": "JuanintheBest"
-}
-
-# Datos de un libro y una película
-book_data = {
-    "name": "El Hobbit", # Asegúrate de que exista y esté disponible
-    "author": "J.R.R. Tolkien"
-}
-
-film_data = {
-    "name": "Inception", # Asegúrate de que exista y esté disponible
-    "actors": "Leonardo DiCaprio, Joseph Gordon-Levitt"
-}
-
-# Realizar la petición
-response = requests.post(
-    url_loan,
-    json={
-        "user": user_data,
-        "book": book_data,
-        "film": film_data
-    }
-)
-
-print(f"\n--- Préstamo de Libro y Película (o fallo si no permitido) ---")
-print(f"Código de respuesta: {response.status_code}")
-print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
+# print(f"\n--- Préstamo de Película ---")
+# print(f"Código de respuesta: {response.status_code}")
+# print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
 
 
-# Intentar prestar nada (debería dar 400 Bad Request)
-response_none = requests.post(
-    url_loan,
-    json={
-        "user": user_data,
-        "book": None,
-        "film": None
-    }
-)
 
-print(f"\n--- Préstamo de Nada (debería fallar) ---")
-print(f"Código de respuesta: {response_none.status_code}")
-print(f"Respuesta: {json.dumps(response_none.json(), indent=2)}")
+
+# url_loan = "http://127.0.0.1:8000/Realizar_un_prestamo/"
+# user_data = {
+#     "name": "Juan Perez Arriaga",
+#     "contact_mail": "juan.perez@example.com",
+#     "password": "JuanintheBest"
+# }
+# book_data = {
+#     "name": "El Hobbit",
+#     "author": "J.R. R. Tolkien"
+# }
+
+# film_data = {
+#     "name": "Inception",
+#     "actors": "Leonardo DiCaprio, Joseph Gordon-Levitt"
+# }
+# response = requests.post(
+#     url_loan,
+#     json={
+#         "user": user_data,
+#         "book": book_data,
+#         "film": film_data
+#     }
+# )
+
+# print(f"\n--- Préstamo de Libro y Película (o fallo si no permitido) ---")
+# print(f"Código de respuesta: {response.status_code}")
+# print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
+
+
+# # Intentar prestar nada (debería dar 400 Bad Request)
+# response_none = requests.post(
+#     url_loan,
+#     json={
+#         "user": user_data,
+#         "book": None,
+#         "film": None
+#     }
+# )
+
+# print(f"\n--- Préstamo de Nada (debería fallar) ---")
+# print(f"Código de respuesta: {response_none.status_code}")
+# print(f"Respuesta: {json.dumps(response_none.json(), indent=2)}")
+
+
+# # # Devolución de préstamos
+# # url_return = "http://127.0.0.1:8000/Devolver_prestamo/"
+
+
+# # user_data_existing = {
+# #     "name": "Juan Perez Arriaga",
+# #     "contact_mail": "juan.perez@example.com",
+# #     "password": "JuanintheBest"
+# # }
+# # loan_data_empty = {
+# #     "user_id": 1,
+# #     "book_ref_number": None, 
+# #     "film_ref_number": None  
+# # }
+
+
+# # response = requests.put(
+# #     url_return,
+# #     json=loan_data_empty
+# # )
+
+# # print(f"\n--- Intentando Devolver Préstamo SIN Libro ni Película ---")
+# # print(f"Código de respuesta: {response.status_code}")
+# # print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
