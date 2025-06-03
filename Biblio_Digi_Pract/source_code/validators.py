@@ -9,9 +9,9 @@ class Book(BaseModel):
     # book_ref: int = Field(..., description="Referencia del libro en el sistema")
     # esta validación no es correcta porque al ser primary key esta la auto genera la BD y no es un campo pediod al ussuario
     
-    name: str = Field(..., min_length=3, max_length=40, description="Nombre del libro")
-    author: str = Field(..., min_length=10, max_length=40, description="Autor del libro")
-    genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece el libro")
+    name: str = Field(..., min_length=3, max_length=60, description="Nombre del libro")
+    author: str = Field(..., min_length=10, max_length=60, description="Autor del libro")
+    # genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece el libro")
     
     @field_validator("name")
     def bookname_with_vowels(cls, value):
@@ -33,9 +33,9 @@ class Book(BaseModel):
 class Film(BaseModel):
     
     # film_ref: int = Field(..., description="Referencia de la película en el sistema")
-    name: str = Field(..., min_length=3, max_length=40, description="Nombre de la película")
+    name: str = Field(..., min_length=3, max_length=60, description="Nombre de la película")
     actors: str = Field(..., description="Actores de la película")
-    genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece la película")
+    # genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece la película")
     
     
     @field_validator("actors")

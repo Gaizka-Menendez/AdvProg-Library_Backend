@@ -20,20 +20,20 @@ class UserDB(Base):
     loans = relationship("Loan_DB", back_populates="user_resp")
     
     
-    def __init__(self, name: str, mail: str, passwd: str,  age: int = None):
-        self.full_name = name
-        self.contact_mail = mail
-        self.hashed_password = passwd
-        self.age = age
+    # def __init__(self, name: str, mail: str, passwd: str,  age: int = None):
+    #     self.full_name = name
+    #     self.contact_mail = mail
+    #     self.hashed_password = passwd
+    #     self.age = age
     
 
 # La idea es que tanto las peliculas como los libros tengan atributos en comun y aplicando herencia posteriormente cada uno tenga sus particularidades
 class Library_Item:
     
-    def __init__(self, name: str, genre: int):
+    def __init__(self, name: str):
         self._name = name
         self._available = True
-        self.genre_id = genre
+        # self.genre_id = genre
     
     @property
     def name(self):
@@ -74,9 +74,9 @@ class Film_DB(Base, Library_Item):
     loans = relationship("Loan_DB", back_populates="film_loaned")
     
     
-    def __init__(self, name: str, actors: str, genre: int):
-        super().__init__(name, genre)
-        self.actors = actors
+    # def __init__(self, name: str, actors: str):
+    #     super().__init__(name)
+    #     self.actors = actors
 
        
     def get_item_type(self):
@@ -114,9 +114,9 @@ class Book_DB(Base, Library_Item):
     loans = relationship("Loan_DB", back_populates="book_loaned")
     
     
-    def __init__(self, name: str, author: str, genre: int):
-        super().__init__(name, genre)
-        self.author = author
+    # def __init__(self, name: str, author: str):
+    #     super().__init__(name)
+    #     self.author = author
               
     def get_item_type(self):
         return "Book"
@@ -136,8 +136,8 @@ class Genre_DB(Base):
     films = relationship("Film_DB", back_populates="genres")
     
     
-    def __init__(self, name):
-        self.genre_name = name
+    # def __init__(self, name):
+    #     self.genre_name = name
 
     
 
@@ -156,10 +156,10 @@ class Loan_DB(Base):
     book_loaned = relationship("Book_DB", back_populates="loans")
     film_loaned = relationship("Film_DB", back_populates="loans")
     
-    def __init__(self, user_id: int, book_ref_number: int, film_ref_number: int):
-        self.user_id=user_id
-        self.book_ref_number=book_ref_number
-        self.film_ref_number=film_ref_number
+    # def __init__(self, user_id: int, book_ref_number: int, film_ref_number: int):
+    #     self.user_id=user_id
+    #     self.book_ref_number=book_ref_number
+    #     self.film_ref_number=film_ref_number
     
 
 
