@@ -221,7 +221,7 @@ def loan_articles( user: User, book: Book = None, film: Film = None, db: Session
     return l
 
 
-@app.put("Devolver_prestamo", status_code=status.HTTP_200_OK)
+@app.put("/Devolver_prestamo/", status_code=status.HTTP_200_OK)
 def loan_returned(loan: Loan, db: Session = Depends(get_db)):
     logger.info("Petición recibida para devolver un préstamo")
     if loan.film_ref_number and loan.book_ref_number:
@@ -237,12 +237,12 @@ def loan_returned(loan: Loan, db: Session = Depends(get_db)):
             existing_book = db.query(Book_DB).filter(Book_DB.ref_number==existing_loan.book_ref_number).first()
             existing_book.item_returned()
             db.add(existing_book)
-            db.refresh(existing_book)
+            # db.refresh(existing_book)
         if existing_loan.film_ref_number:
             existing_film = db.query(Film_DB).filter(Film_DB.ref_number==existing_loan.film_ref_number).first()
             existing_film.item_returned()
             db.add(existing_film)
-            db.refresh(existing_film)
+            # db.refresh(existing_film)
     else:
          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No existe el prestamo")       
     existing_loan.return_date = func.now()

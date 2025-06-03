@@ -248,27 +248,68 @@ print(f"Respuesta: {json.dumps(response.json(), indent=2)}")
 # print(f"Respuesta: {json.dumps(response_none.json(), indent=2)}")
 
 
-# # # Devolución de préstamos
-# # url_return = "http://127.0.0.1:8000/Devolver_prestamo/"
+# # Devolución de préstamos
+# url_return = "http://127.0.0.1:8000/Devolver_prestamo/"
 
 
-# # user_data_existing = {
-# #     "name": "Juan Perez Arriaga",
-# #     "contact_mail": "juan.perez@example.com",
-# #     "password": "JuanintheBest"
-# # }
-# # loan_data_empty = {
-# #     "user_id": 1,
-# #     "book_ref_number": None, 
-# #     "film_ref_number": None  
-# # }
+# user_data_existing = {
+#     "name": "Juan Perez Arriaga",
+#     "contact_mail": "juan.perez@example.com",
+#     "password": "JuanintheBest"
+# }
+# loan_data_empty = {
+#     "user_id": 2,
+#     "book_ref_number": None, 
+#     "film_ref_number": None  
+# }
 
 
-# # response = requests.put(
-# #     url_return,
-# #     json=loan_data_empty
-# # )
+# response = requests.put(
+#     url_return,
+#     json=loan_data_empty
+# )
 
-# # print(f"\n--- Intentando Devolver Préstamo SIN Libro ni Película ---")
-# # print(f"Código de respuesta: {response.status_code}")
-# # print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+# print(f"\n--- Intentando Devolver Préstamo SIN Libro ni Película ---")
+# print(f"Código de respuesta: {response.status_code}")
+# print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
+
+
+
+
+# --- URLs de tus endpoints ---
+URL_BASE = "http://127.0.0.1:8000"
+URL_DEVOLVER = f"{URL_BASE}/Devolver_prestamo"
+
+# --- Datos necesarios para la devolución ---
+# Estos IDs y números de referencia DEBEN coincidir con un préstamo EXISTENTE
+# que se haya realizado previamente y que aún no haya sido devuelto.
+
+# 1. user_id del usuario que hizo el préstamo (ej. Juan Perez Arriaga)
+#    Asegúrate de que este ID corresponda a un usuario existente en tu DB.
+user_id_del_prestamo = 2 # <--- ¡IMPORTANTE! Ajusta al ID real del usuario
+
+# 2. book_ref_number del libro prestado (ej. Harry Potter y la piedra filosofal)
+#    Asegúrate de que este número de referencia sea el correcto para el libro.
+book_ref_number_del_libro_prestado = 3 # <--- ¡IMPORTANTE! Ajusta al ref_number real del libro
+
+# 3. film_ref_number (si no se prestó película, debe ser None)
+film_ref_number_del_prestamo = None
+
+# --- Datos para la petición de devolución (payload) ---
+# Tu función loan_returned espera un objeto 'Loan' con user_id, book_ref_number, film_ref_number.
+payload_devolucion = {
+    "user_id": user_id_del_prestamo,
+    "book_ref_number": book_ref_number_del_libro_prestado,
+    "film_ref_number": film_ref_number_del_prestamo
+}
+
+# --- Realizar la petición PUT para devolver el préstamo ---
+response = requests.put(
+    URL_DEVOLVER,
+    json=payload_devolucion
+)
+
+# --- Imprimir el resultado de la devolución ---
+print(f"--- Devolución de Préstamo (Libro: Harry Potter) ---")
+print(f"Código de respuesta: {response.status_code}")
+print(f"Respuesta: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
