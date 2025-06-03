@@ -42,20 +42,20 @@ A continuación voy a detallar un poco que es lo que ocurre en cada una de las c
 
     Sus diferentes endpoints y descripción de cada uno son los siguientes:
 
-    `POST /Usuarios/` -> Crea y registra un nuevo usuario.
-    `GET /Usuarios/{name}` -> Obtiene la información de uno o más usuarios por nombre.
-    `PATCH /Usuarios/{user_id}/Perfil_de_usuario` -> Modifica parcialmente los datos de un usuario existente.
-    `POST /Libros/` -> Crea y registra un nuevo libro, opcionalmente añadiendo un nuevo género a través de un parámetro pasado por url y capturandolo a través de una query.
-    `GET /Libros/{name}` -> Obtiene la información de un libro por su nombre.
-    `POST /Peliculas/` -> Crea y registra una nueva película, opcionalmente añadiendo un nuevo género a través de un parámetro pasado por url y capturandolo a través de una query.
-    `GET /Peliculas/{name}` -> Obtiene la información de una película por su nombre.
-    `GET /Peliculas/{name}/actors` -> Obtiene la lista de actores de una película específica.
-    `POST /Generos/` -> Crea y registra un nuevo género.
-    `GET /Generos/{name}` -> Obtiene la información de un género específico.
-    `POST /Realizar_un_prestamo/` -> Registra un nuevo préstamo de un libro y/o una película. Validando existencia del usuario, de los artículos y su disponibilidad a ser alquilados. 
-    `PATCH /Devolver_prestamo/` -> Gestiona la devolución de un préstamo específico.
-    `DELETE /Libros/{ref_number}/` -> Borra un libro por su número de referencia.
-    `DELETE /Peliculas/{ref_number}/` -> Borra una película por su número de referencia.
+    * `POST /Usuarios/` -> Crea y registra un nuevo usuario.
+    * `GET /Usuarios/{name}` -> Obtiene la información de uno o más usuarios por nombre.
+    * `PATCH /Usuarios/{user_id}/Perfil_de_usuario` -> Modifica parcialmente los datos de un usuario existente.
+    * `POST /Libros/` -> Crea y registra un nuevo libro, opcionalmente añadiendo un nuevo género a través de un parámetro pasado por url y capturandolo a través de una query.
+    * `GET /Libros/{name}` -> Obtiene la información de un libro por su nombre.
+    * `POST /Peliculas/` -> Crea y registra una nueva película, opcionalmente añadiendo un nuevo género a través de un parámetro pasado por url y capturandolo a través de una query.
+    * `GET /Peliculas/{name}` -> Obtiene la información de una película por su nombre.
+    * `GET /Peliculas/{name}/actors` -> Obtiene la lista de actores de una película específica.
+    * `POST /Generos/` -> Crea y registra un nuevo género.
+    * `GET /Generos/{name}` -> Obtiene la información de un género específico.
+    * `POST /Realizar_un_prestamo/` -> Registra un nuevo préstamo de un libro y/o una película. Validando existencia del usuario, de los artículos y su disponibilidad a ser alquilados. 
+    * `PATCH /Devolver_prestamo/` -> Gestiona la devolución de un préstamo específico.
+    * `DELETE /Libros/{ref_number}/` -> Borra un libro por su número de referencia.
+    * `DELETE /Peliculas/{ref_number}/` -> Borra una película por su número de referencia.
 
 
 Adicionalmente a lo comentado anteriormente, para clarificar las relaciones entre clases y la lógica de mi app que originalmente pretendía. Diseñé un archivo sketch de drawio de un modelo entidad relación que se encuentra disponible en la carpeta other_resources además de la batería de pruebas ejecutada y probada en la demo.
