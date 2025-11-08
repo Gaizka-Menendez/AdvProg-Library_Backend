@@ -6,12 +6,8 @@ from typing import Optional, List
 
 class Book(BaseModel):
     
-    # book_ref: int = Field(..., description="Referencia del libro en el sistema")
-    # esta validación no es correcta porque al ser primary key esta la auto genera la BD y no es un campo pediod al ussuario
-    
     name: str = Field(..., min_length=3, max_length=60, description="Nombre del libro")
     author: str = Field(..., min_length=10, max_length=60, description="Autor del libro")
-    # genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece el libro")
     
     @field_validator("name")
     def bookname_with_vowels(cls, value):
@@ -32,10 +28,8 @@ class Book(BaseModel):
 
 class Film(BaseModel):
     
-    # film_ref: int = Field(..., description="Referencia de la película en el sistema")
     name: str = Field(..., min_length=3, max_length=60, description="Nombre de la película")
     actors: str = Field(..., description="Actores de la película")
-    # genre_id: int = Field(..., gt=0, description="IDs de los géneros a los que pertenece la película")
     
     
     @field_validator("actors")
@@ -49,7 +43,6 @@ class Film(BaseModel):
     
 class User(BaseModel):
     
-    # user_id: int = Field(..., description="Id del usuario en el sistema")
     full_name: str = Field(..., min_length=3, max_length=40, description="Nombre del usuario")
     age: Optional[int] = Field(None, min=5, description="Edad (opcional) del usuario")
     hashed_password: str = Field(..., min_length=8, max_length=20, description="Contraseña del usuario. Será cifrada antes de guardarse.")
@@ -92,7 +85,6 @@ class Loan(BaseModel):
 
 class Genre(BaseModel):
     
-    # genre_id: int = Field(..., description="Id del usuario en el sistema") # Este campo no es necesario para el Pydantic Model si la DB lo auto-genera
     genre_name: str = Field(..., min_length=3, max_length=40, description="Nombre del género")
     
     @field_validator("genre_name")
