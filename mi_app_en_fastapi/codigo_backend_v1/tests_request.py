@@ -3,20 +3,20 @@ import requests
 url = "http://localhost:8000/users/"
 
 # user_data = {
-#     "email": "gaizkam20@gmail.com",
-#     "username": "Gaizka", 
+#     "email": "juanito20@gmail.com",
+#     "username": "Juan", 
 #     "age": 24
 # }
 
 # user_data = {
-#     "email": "gaizka.menendez.hernandez@alumnos.upm.es",
-#     "username": "Gaizka M", 
+#     "email": "giosvienar@gmail.com",
+#     "username": "Giosvienar M", 
 #     "age": 20
 # }
 
 user_data = {
-    "email": "jmenendez0001@gmail.com",
-    "username": "Joaquin Menéndez Cruces", 
+    "email": "joaco@gmail.com",
+    "username": "Joaquin Quintero Perez", 
     "age": 50
 }
 
